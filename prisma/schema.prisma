@@ -1,13 +1,65 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider        = "prisma-client"
+  output          = "../src/generated/prisma"
+  previewFeatures = ["nativeDistinct", "relationJoins"]
+  engineType      = "client"
 }
 
 datasource db {
   provider = "postgresql"
+  schemas  = ["fussballer"]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model Adresse {
+  id            Int        @id @default(autoincrement())
+  plz           String
+  ort           String
+  bundesland    String
+  fussballerId Int
+  fussballer    Fussballer @relation(fields: [fussballerId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([fussballerId])
+  @@map("adresse")
+  @@schema("fussballer")
+}
+
+model Auszeichnung {
+  id            Int        @id @default(autoincrement())
+  bezeichnung   String
+  saison        String
+  fussballerId Int
+  fussballer    Fussballer @relation(fields: [fussballerId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([fussballerId])
+  @@map("auszeichnung")
+  @@schema("fussballer")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model Fussballer {
+  id            Int            @id @default(autoincrement())
+  version       Int            @default(0)
+  nachname      String
+  nationalitaet String
+  position      PositionType?
+  geburtsdatum  DateTime?      @db.Date
+  username      String
+  erzeugt       DateTime       @default(now()) @db.Timestamp(6)
+  aktualisiert  DateTime       @default(now()) @db.Timestamp(6) @updatedAt
+  adresse       Adresse[]
+  auszeichnungen  Auszeichnung[]
+
+  @@index([nachname])
+  @@map("fussballer")
+  @@schema("fussballer")
+}
+
+enum PositionType {
+  TORWART
+  VERTEIDIGER
+  MITTELFELDSPIELER
+  STUERMER
+  @@map("position_type")
+  @@schema("fussballer")
 }
