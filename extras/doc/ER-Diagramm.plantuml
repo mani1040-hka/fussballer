@@ -1,0 +1,38 @@
+@startuml ER-Diagramm
+
+skinparam linetype ortho
+
+entity "Fussballer" {
+  * id: integer <<generated>>
+  --
+  * version: integer
+  * nachname: text
+  * nationalitaet: text
+  * position: text
+  * geburtsdatum: date
+  * username: text
+  * erzeugt: timestamp
+  * aktualisiert: timestamp
+}
+
+entity "Adresse" {
+  * id: integer <<generated>>
+  --
+    plz: text
+    ort: text
+    bundesland: text
+  * **fussballer_id**: integer <<FK>>
+}
+
+entity "Auszeichnung" {
+  * id: integer <<generated>>
+  --
+  * bezeichnung: text
+  * saison: text
+  * **fussballer_id**: integer <<FK>>
+}
+
+Fussballer ||..|| Adresse
+Fussballer ||..o{ Auszeichnung
+
+@enduml
