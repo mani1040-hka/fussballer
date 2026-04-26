@@ -12,7 +12,7 @@
     "Prettier"
   ],
   "license": "GPL-3.0",
-  "author": "Juergen Zimmermann <Juergen.Zimmermann@h-ka.de> (https://www.h-ka.de)",
+  "author": "Jonas Vollmer <vojo1023@h-ka.de>",
   "type": "module",
   "scripts": {
     "build": "bun build --compile --sourcemap ./src/beispiele.mts",
