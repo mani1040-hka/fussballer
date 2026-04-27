@@ -102,7 +102,7 @@ try {
     const fussballerAdmin: Fussballer[] = await prismaAdmin.fussballer.findMany({
         where: {
             adresse: {
-                bundesland: {
+                ort: {
                     contains: 'n',
                 },
             },
