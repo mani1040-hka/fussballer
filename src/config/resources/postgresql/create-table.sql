@@ -5,14 +5,14 @@ CREATE SCHEMA IF NOT EXISTS AUTHORIZATION fussballer;
 ALTER ROLE fussballer SET search_path = 'fussballer';
 set search_path to 'fussballer';
 
-CREATE TYPE position AS ENUM ('TORWART', 'VERTEIDIGER', 'MITTELFELDSPIELER', 'STUERMER');
+CREATE TYPE position_enum AS ENUM ('TORWART', 'VERTEIDIGER', 'MITTELFELDSPIELER', 'STUERMER');
 
 CREATE TABLE IF NOT EXISTS fussballer (
     id            integer GENERATED ALWAYS AS IDENTITY(START WITH 1000) PRIMARY KEY,
     version       integer NOT NULL DEFAULT 0,
     nachname      text NOT NULL,
     nationalitaet text NOT NULL,
-    position      position NOT NULL,
+    position      position_enum,
     geburtsdatum  date NOT NULL,
     username      text NOT NULL UNIQUE,
     erzeugt       timestamp NOT NULL DEFAULT NOW(),

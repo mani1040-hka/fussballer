@@ -1,25 +1,4 @@
-// Copyright (C) 2025 - present Juergen Zimmermann, Hochschule Karlsruhe
-//
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program. If not, see <http://www.gnu.org/licenses/>.
-
-// Aufruf:  bun i
-//          bun --env-file=.env prisma generate
-//
-//          bun --env-file=.env src\beispiele.mts
-
 import process from 'node:process';
-import { styleText } from 'node:util';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { prismaQueryInsights } from '@prisma/sqlcommenter-query-insights';
 import {
@@ -27,41 +6,35 @@ import {
     type Fussballer,
     type Prisma,
 } from './generated/prisma/client.ts';
+import { styleText } from 'node:util';
 
-let message = styleText(['black', 'bgWhite'], 'Node version');
+let message = styleText (['blue', 'bgWhite'], 'Node version');
 console.log(`${message}=${process.version}`);
-message = styleText(['black', 'bgWhite'], 'DATABASE_URL');
+message = styleText (['blue', 'bgWhite'], 'DATABASE_URL');
 console.log(`${message}=${process.env['DATABASE_URL']}`);
 console.log();
 
-// "named parameter" durch JSON-Objekt
 const adapter = new PrismaPg({
     connectionString: process.env['DATABASE_URL'],
 });
 
-// union type
 const log: (Prisma.LogLevel | Prisma.LogDefinition)[] = [
     {
-        // siehe unten: prisma.$on('query', ...);
-        emit: 'event',
         level: 'query',
+        emit: 'event',
     },
     'info',
-    'warn',
     'error',
+    'warn',
 ];
 
-// PrismaClient passend zur Umgebungsvariable DATABASE_URL in ".env"
-// d.h. mit PostgreSQL-User "fussballer" und Schema "fussballer"
 const prisma = new PrismaClient({
-    // shorthand property
     adapter,
     errorFormat: 'pretty',
     log,
-    // Kommentar zu Log-Ausgabe:
-    // /*prismaQuery='Fussballer.findMany%3A...
     comments: [prismaQueryInsights()],
 });
+
 prisma.$on('query', (e) => {
     message = styleText('green', `Query: ${e.query}`);
     console.log(message);
@@ -69,62 +42,58 @@ prisma.$on('query', (e) => {
     console.log(message);
 });
 
-export type FussballerMitAdresseUndAuszeichnungen =
-    Prisma.FussballerGetPayload<{}>; // eslint-disable-line @typescript-eslint/no-empty-object-type
+export type FussballerMitAdresseUndAuszeichnungen = Prisma.FussballerGetPayload<{
+    include: {
+        adresse: true;
+        auszeichnungen: true;
+    };
+}>;
 
-// Operationen mit dem Model "Fussballer"
 try {
     await prisma.$connect();
 
-    // Das Resultat ist null, falls kein Datensatz gefunden
     const fussballer: Fussballer | null = await prisma.fussballer.findUnique({
         where: { id: 1 },
     });
-    message = styleText(['black', 'bgWhite'], 'fussballer');
+    message = styleText (['black', 'bgWhite'], 'fussballer');
     console.log(`${message} = %j`, fussballer);
     console.log();
 
-    // SELECT *
-    // FROM   fussballer
-    // WHERE  nachname LIKE "%e%"
-    const fussballerListe: FussballerMitAdresseUndAuszeichnungen[] =
-        await prisma.fussballer.findMany({
+    const fussballers: FussballerMitAdresseUndAuszeichnungen[] = await prisma.fussballer.findMany({
         where: {
-            nachname: {
-                // https://www.prisma.io/docs/orm/reference/prisma-client-reference#filter-conditions-and-operators
-                contains: 'e',
+            adresse: {
+                ort: {
+                    contains: 'n',
+                },
             },
         },
+
+        include: {
+            adresse: true,
+            auszeichnungen: true,
+        },
     });
-    message = styleText(['black', 'bgWhite'], 'fussballerListe');
-    console.log(`${message} = %j`, fussballerListe);
+    message = styleText (['black', 'bgWhite'], 'fussballerMitAuszeichnungen');
+    console.log(`${message} = %j`, fussballer);
     console.log();
 
-    // higher-order function und arrow function
-    const nationalitaeten = fussballerListe.map((f) => f.nationalitaet);
-    message = styleText(['black', 'bgWhite'], 'nationalitaeten');
-    console.log(`${message} = %j`, nationalitaeten);
-    console.log();
-
-    // union type
-    const usernames = fussballerListe.map((f) => f.username);
-    message = styleText(['black', 'bgWhite'], 'usernames');
-    console.log(`${message} = %j`, usernames);
+    const adresse = fussballers.map((b) => b.adresse?.ort);
+    message = styleText(['black', 'bgWhite'], 'adresse');
+    console.log(`${message} = %j`, adresse);
     console.log();
 
     // Pagination
-    const fussballerPage2: Fussballer[] = await prisma.fussballer.findMany({
+    const fussballerPage: Fussballer[] = await prisma.fussballer.findMany({
         skip: 5,
         take: 5,
     });
-    message = styleText(['black', 'bgWhite'], 'fussballerPage2');
-    console.log(`${message} = %j`, fussballerPage2);
+    message = styleText (['black', 'bgWhite'], 'fussballerPage');
+    console.log(`${message} = %j`, fussballerPage);
     console.log();
 } finally {
     await prisma.$disconnect();
 }
 
-// PrismaClient mit PostgreSQL-User "postgres", d.h. mit Administrationsrechten
 const adapterAdmin = new PrismaPg({
     connectionString: process.env['DATABASE_URL_ADMIN'],
 });
@@ -132,8 +101,10 @@ const prismaAdmin = new PrismaClient({ adapter: adapterAdmin });
 try {
     const fussballerAdmin: Fussballer[] = await prismaAdmin.fussballer.findMany({
         where: {
-            nachname: {
-                contains: 'e',
+            adresse: {
+                bundesland: {
+                    contains: 'n',
+                },
             },
         },
     });
