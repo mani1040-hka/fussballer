@@ -7,7 +7,6 @@ import {
     type Prisma,
 } from './generated/prisma/client.ts';
 import { styleText } from 'node:util';
-import { FussballerGetPayload } from './generated/prisma/models/Fussballer';
 
 let message = styleText (['blue', 'bgWhite'], 'Node version');
 console.log(`${message}=${process.version}`);
@@ -54,20 +53,63 @@ try {
     await prisma.$connect();
 
     const fussballer: Fussballer | null = await prisma.fussballer.findUnique({
-        where: {id: 1},
+        where: { id: 1 },
     });
-    message= styleText (['black', 'bgWhite'], 'fussballer');
+    message = styleText (['black', 'bgWhite'], 'fussballer');
     console.log(`${message} = %j`, fussballer);
     console.log();
-
 
     const fussballers: FussballerMitAdresseUndAuszeichnungen[] = await prisma.fussballer.findMany({
         where: {
             adresse: {
                 ort: {
                     contains: 'n',
-                }
-            }
-        }
-    })
+                },
+            },
+        },
+
+        include: {
+            adresse: true,
+            auszeichnungen: true,
+        },
+    });
+    message = styleText (['black', 'bgWhite'], 'fussballerMitAuszeichnungen');
+    console.log(`${message} = %j`, fussballer);
+    console.log();
+
+    const adresse = fussballers.map((b) => b.adresse?.ort);
+    message = styleText(['black', 'bgWhite'], 'adresse');
+    console.log(`${message} = %j`, adresse);
+    console.log();
+
+    // Pagination
+    const fussballerPage: Fussballer[] = await prisma.fussballer.findMany({
+        skip: 5,
+        take: 5,
+    });
+    message = styleText (['black', 'bgWhite'], 'fussballerPage');
+    console.log(`${message} = %j`, fussballerPage);
+    console.log();
+} finally {
+    await prisma.$disconnect();
+}
+
+const adapterAdmin = new PrismaPg({
+    connectionString: process.env['DATABASE_URL_ADMIN'],
+});
+const prismaAdmin = new PrismaClient({ adapter: adapterAdmin });
+try {
+    const fussballerAdmin: Fussballer[] = await prismaAdmin.fussballer.findMany({
+        where: {
+            adresse: {
+                bundesland: {
+                    contains: 'n',
+                },
+            },
+        },
+    });
+    message = styleText(['black', 'bgWhite'], 'fussballerAdmin');
+    console.log(`${message} = ${JSON.stringify(fussballerAdmin)}`);
+} finally {
+    await prismaAdmin.$disconnect();
 }
