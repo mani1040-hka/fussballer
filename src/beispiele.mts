@@ -74,7 +74,7 @@ try {
         },
     });
     message = styleText (['black', 'bgWhite'], 'fussballerMitAuszeichnungen');
-    console.log(`${message} = %j`, fussballer);
+    console.log(`${message} = %j`, fussballers);
     console.log();
 
     const adresse = fussballers.map((b) => b.adresse?.ort);

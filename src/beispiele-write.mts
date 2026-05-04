@@ -39,9 +39,9 @@ prisma.$on('query', (e) => {
 });
 
 const neuerFussballer: Prisma.FussballerCreateInput = {
-    nachname: 'Schweizer',
+    nachname: 'Fuss',
     nationalitaet: 'Singapur',
-    username: 'schweizer',
+    username: 'fuss',
     position: 'VERTEIDIGER',
     geburtsdatum: '2005-03-22T00:00:00Z',
     adresse: {
@@ -70,11 +70,11 @@ type FussballerCreated = Prisma.FussballerGetPayload<{
 
 const geaenderterFussballer: Prisma.FussballerUpdateInput = {
     version: { increment: 1 },
-    nachname: 'Schneider',
+    nachname: 'Mueller',
     nationalitaet: 'Deutschland',
     position: 'VERTEIDIGER',
     geburtsdatum: '2004-10-01T00:00:00Z',
-    username: 'schneider',
+    username: 'mueller',
 };
 
 type FussballerUpdated = Prisma.FussballerGetPayload<{}>; // eslint-disable-line @typescript-eslint/no-empty-object-type
@@ -100,7 +100,7 @@ try {
         console.log(`${message} ${fussballerUpdated.version}`);
         console.log();
 
-        const geloescht = await tx.fussballer.delete({ where: { id: 40 } });
+        const geloescht = await tx.fussballer.delete({ where: { id: fussballerDb.id } });
 
         // eslint-disable-next-line require-atomic-updates
         message = styleText(['black', 'bgWhite'], 'Geloescht:');
