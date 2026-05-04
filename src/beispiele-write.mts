@@ -1,9 +1,7 @@
 import { PrismaPg } from '@prisma/adapter-pg';
 import { styleText } from 'node:util';
 import process from 'node:process';
-import {
-    PrismaClient,
-    type Prisma } from './generated/prisma/client.ts';
+import { PrismaClient, type Prisma } from './generated/prisma/client.ts';
 let message = styleText(
     'yellow',
     `process.env['DATABASE_URL']=${process.env['DATABASE_URL']}`,
@@ -39,9 +37,9 @@ prisma.$on('query', (e) => {
 });
 
 const neuerFussballer: Prisma.FussballerCreateInput = {
-    nachname: 'Schweizer',
+    nachname: 'Fuss',
     nationalitaet: 'Singapur',
-    username: 'schweizer',
+    username: 'fuss',
     position: 'VERTEIDIGER',
     geburtsdatum: '2005-03-22T00:00:00Z',
     adresse: {
@@ -70,11 +68,11 @@ type FussballerCreated = Prisma.FussballerGetPayload<{
 
 const geaenderterFussballer: Prisma.FussballerUpdateInput = {
     version: { increment: 1 },
-    nachname: 'Schneider',
+    nachname: 'Mueller',
     nationalitaet: 'Deutschland',
     position: 'VERTEIDIGER',
     geburtsdatum: '2004-10-01T00:00:00Z',
-    username: 'schneider',
+    username: 'mueller',
 };
 
 type FussballerUpdated = Prisma.FussballerGetPayload<{}>; // eslint-disable-line @typescript-eslint/no-empty-object-type
@@ -90,17 +88,21 @@ try {
         console.log(`${message} ${fussballerDb.id}`);
         console.log();
 
-        const fussballerUpdated: FussballerUpdated = await tx.fussballer.update({
-            data: geaenderterFussballer,
-            where: { id: 20 },
-        });
+        const fussballerUpdated: FussballerUpdated = await tx.fussballer.update(
+            {
+                data: geaenderterFussballer,
+                where: { id: 20 },
+            },
+        );
 
         // eslint-disable-next-line require-atomic-updates
         message = styleText(['black', 'bgWhite'], 'Aktualisierte Version:');
         console.log(`${message} ${fussballerUpdated.version}`);
         console.log();
 
-        const geloescht = await tx.fussballer.delete({ where: { id: fussballerDb.id } });
+        const geloescht = await tx.fussballer.delete({
+            where: { id: fussballerDb.id },
+        });
 
         // eslint-disable-next-line require-atomic-updates
         message = styleText(['black', 'bgWhite'], 'Geloescht:');

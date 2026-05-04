@@ -28,7 +28,7 @@ model Auszeichnung {
   id            Int        @id @default(autoincrement())
   bezeichnung   String
   saison        String
-  fussballerId Int  @map("fussballer_id")
+  fussballerId Int @map("fussballer_id")
   fussballer    Fussballer @relation(fields: [fussballerId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([fussballerId])
@@ -60,6 +60,6 @@ enum PositionType {
   VERTEIDIGER
   MITTELFELDSPIELER
   STUERMER
-  @@map("position_type")
+  @@map("position_enum")
   @@schema("fussballer")
 }
