@@ -8,9 +8,9 @@ import {
 } from './generated/prisma/client.ts';
 import { styleText } from 'node:util';
 
-let message = styleText (['blue', 'bgWhite'], 'Node version');
+let message = styleText(['blue', 'bgWhite'], 'Node version');
 console.log(`${message}=${process.version}`);
-message = styleText (['blue', 'bgWhite'], 'DATABASE_URL');
+message = styleText(['blue', 'bgWhite'], 'DATABASE_URL');
 console.log(`${message}=${process.env['DATABASE_URL']}`);
 console.log();
 
@@ -42,12 +42,13 @@ prisma.$on('query', (e) => {
     console.log(message);
 });
 
-export type FussballerMitAdresseUndAuszeichnungen = Prisma.FussballerGetPayload<{
-    include: {
-        adresse: true;
-        auszeichnungen: true;
-    };
-}>;
+export type FussballerMitAdresseUndAuszeichnungen =
+    Prisma.FussballerGetPayload<{
+        include: {
+            adresse: true;
+            auszeichnungen: true;
+        };
+    }>;
 
 try {
     await prisma.$connect();
@@ -55,25 +56,26 @@ try {
     const fussballer: Fussballer | null = await prisma.fussballer.findUnique({
         where: { id: 1 },
     });
-    message = styleText (['black', 'bgWhite'], 'fussballer');
+    message = styleText(['black', 'bgWhite'], 'fussballer');
     console.log(`${message} = %j`, fussballer);
     console.log();
 
-    const fussballers: FussballerMitAdresseUndAuszeichnungen[] = await prisma.fussballer.findMany({
-        where: {
-            adresse: {
-                ort: {
-                    contains: 'n',
+    const fussballers: FussballerMitAdresseUndAuszeichnungen[] =
+        await prisma.fussballer.findMany({
+            where: {
+                adresse: {
+                    ort: {
+                        contains: 'n',
+                    },
                 },
             },
-        },
 
-        include: {
-            adresse: true,
-            auszeichnungen: true,
-        },
-    });
-    message = styleText (['black', 'bgWhite'], 'fussballerMitAuszeichnungen');
+            include: {
+                adresse: true,
+                auszeichnungen: true,
+            },
+        });
+    message = styleText(['black', 'bgWhite'], 'fussballerMitAuszeichnungen');
     console.log(`${message} = %j`, fussballers);
     console.log();
 
@@ -87,7 +89,7 @@ try {
         skip: 5,
         take: 5,
     });
-    message = styleText (['black', 'bgWhite'], 'fussballerPage');
+    message = styleText(['black', 'bgWhite'], 'fussballerPage');
     console.log(`${message} = %j`, fussballerPage);
     console.log();
 } finally {
@@ -99,15 +101,17 @@ const adapterAdmin = new PrismaPg({
 });
 const prismaAdmin = new PrismaClient({ adapter: adapterAdmin });
 try {
-    const fussballerAdmin: Fussballer[] = await prismaAdmin.fussballer.findMany({
-        where: {
-            adresse: {
-                bundesland: {
-                    contains: 'n',
+    const fussballerAdmin: Fussballer[] = await prismaAdmin.fussballer.findMany(
+        {
+            where: {
+                adresse: {
+                    bundesland: {
+                        contains: 'n',
+                    },
                 },
             },
         },
-    });
+    );
     message = styleText(['black', 'bgWhite'], 'fussballerAdmin');
     console.log(`${message} = ${JSON.stringify(fussballerAdmin)}`);
 } finally {
